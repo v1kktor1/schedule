@@ -131,6 +131,18 @@
         #splash.hide {opacity: 0;transition: opacity .5s ease;pointer-events: none;} 
 
         .cls-link {color: #bdc3ff;text-decoration: none;}
+
+        /* псевдо-fullscreen для iPhone */
+        .ios-fullscreen {
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            background: #1b1a1f;
+        }
     </style>
 </head>
 
@@ -435,33 +447,39 @@
         });
 
         /// Эта функция пытается открыть элемент в полный экран
-        function openFullscreen(element) {
-            if (element.requestFullscreen) {
-                element.requestFullscreen();
+        function enterFullscreen() {
+            const el = document.documentElement;
+
+            // iOS Safari не поддерживает requestFullscreen нормально.
+            // Используем webkitEnterFullscreen если доступно.
+            if (el.requestFullscreen) {
+                el.requestFullscreen();
             } 
-            else if (element.webkitRequestFullscreen) {
-                element.webkitRequestFullscreen();
-            } 
-            else if (element.msRequestFullscreen) {
-                element.msRequestFullscreen();
+            else if (el.webkitRequestFullscreen) {
+                el.webkitRequestFullscreen();
             }
+
+            // Дополнительный фикс для iPhone
+            document.body.classList.add("ios-fullscreen");
         }
 
-        function triggerFullscreen() {
-            if (
-                !document.fullscreenElement &&
-                !document.webkitFullscreenElement &&
-                !document.msFullscreenElement
-            ) {
-                openFullscreen(document.documentElement);
-            }
-        }
+        // Запускаем fullscreen при первом касании
+        document.addEventListener(
+            "touchend",
+            function () {
+                enterFullscreen();
+            },
+            { once: true }
+        );
 
-        // Один раз вызываем fullscreen при первом взаимодействии
-        document.addEventListener('click', triggerFullscreen, { once: true });
-        document.addEventListener('touchend', triggerFullscreen, { once: true });
-        document.addEventListener('touchmove', triggerFullscreen, { once: true });
-        document.addEventListener('wheel', triggerFullscreen, { once: true });
+        // Для кликов тоже
+        document.addEventListener(
+            "click",
+            function () {
+                enterFullscreen();
+            },
+            { once: true }
+        );
         
         window.addEventListener("load", () => {
             renderPages(scheduleData);
