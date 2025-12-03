@@ -1,7 +1,7 @@
 const daysScroll = document.getElementById("daysScroll");
 const wrapper = document.getElementById("wrapper");
 
-const ACTIVE_DAY = 2;
+const ACTIVE_DAY = 3;
 const ACTIVE_MONTH = 12;
 
 const startDay = 1;
